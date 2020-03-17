@@ -8,5 +8,8 @@ A FIFO Queue.
 ### Stack
 A FILO Stack.
 
+### Linked List
+A doubly linked list.
+
 ## Testing
 Unit test are written for all Data Structures using Unity.

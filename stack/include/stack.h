@@ -1,5 +1,6 @@
 #include <stdlib.h>
-
+#ifndef STACK_H
+#define STACK_H
 /*
  * Struct: Node
  * ----------------------------
@@ -89,5 +90,4 @@ void * pop(Stack * stack);
  */
 int destroyStack(Stack * stack);
 
-
-
+#endif

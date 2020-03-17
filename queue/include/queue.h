@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#ifndef QUEUE_H
+#define QUEUE_H
 /*
  * Struct: Node
  * ----------------------------
@@ -110,4 +111,4 @@ int destroyQueue(Queue * queue);
  */
 int printQueue(Queue * queue);
 
-
+#endif
