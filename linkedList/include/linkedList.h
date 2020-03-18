@@ -107,6 +107,17 @@ int insertAtIndexLL(LinkedList * list, void * data, int index);
  */
 void * removeFromIndexLL(LinkedList * list, int index);
 
+/*
+ * Function: getLL
+ * ----------------------------
+ * retrieve the item at the given index.
+ * 
+ * list: the linked list to perform the get operation on.
+ * index: the index of the data to be retreive.
+ * 
+ * return: a pointer of the data at the given index.
+ */
+void * getLL(LinkedList * list, int index);
 
 /*
  * Function: destroyLinkedList

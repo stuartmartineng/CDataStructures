@@ -393,6 +393,120 @@ void test_remove_last_entry(void){
     destroyLinkedList(list);
 }
 
+/*
+ * Test: test_get_null
+ * ----------------------------
+ * Test the get function handles a NULL linked list gracefully.
+ */
+void test_get_null(void){
+    void * data = getLL(NULL, 0);
+    TEST_ASSERT_NULL_MESSAGE(data, "null get call did not return null");
+}
+
+/*
+ * Test: test_get_empty
+ * ----------------------------
+ * Test the get function handles an empty linked list gracefully.
+ */
+void test_get_empty(void){
+    LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
+    void * data = getLL(list, 0);
+    TEST_ASSERT_NULL_MESSAGE(data, "empty list get call did not return null");
+    destroyLinkedList(list);
+}
+
+/*
+ * Test: test_get_out_of_lower_bounds
+ * ----------------------------
+ * Test the get function handles an out of lower bounds index gracefully.
+ */
+void test_get_out_of_lower_bounds(void){
+    LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
+    TestStruct * test1 = createTestingStruct(1, 'a');
+    addToBackLL(list, test1);
+    void * data = getLL(list, -1);
+    TEST_ASSERT_NULL_MESSAGE(data, "out of lower bounds index get call did not return null");
+    destroyLinkedList(list);
+}
+
+/*
+ * Test: test_get_out_of_upper_bounds
+ * ----------------------------
+ * Test the get function handles an out of upper bounds index gracefully.
+ */
+void test_get_out_of_upper_bounds(void){
+    LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
+    TestStruct * test1 = createTestingStruct(1, 'a');
+    addToBackLL(list, test1);
+    void * data = getLL(list, 1);
+    TEST_ASSERT_NULL_MESSAGE(data, "out of upper bounds index get call did not return null");
+    destroyLinkedList(list);
+}
+
+/*
+ * Test: test_get_even
+ * ----------------------------
+ * Test the get function with a list with an even length.
+ */
+void test_get_even(void){
+    LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
+    TestStruct * test1 = createTestingStruct(1, 'a');
+    TestStruct * test2 = createTestingStruct(2, 'b');
+    TestStruct * test3 = createTestingStruct(3, 'c');
+    TestStruct * test4 = createTestingStruct(4, 'd');
+    TestStruct * test5 = createTestingStruct(5, 'e');
+    TestStruct * test6 = createTestingStruct(6, 'f');
+    void * data;
+    char errorString[100];
+
+    addToBackLL(list, test1);
+    addToBackLL(list, test2);
+    addToBackLL(list, test3);
+    addToBackLL(list, test4);
+    addToBackLL(list, test5);
+    addToBackLL(list, test6);
+    
+    for(int i = 0; i < 6; i++){
+        data = getLL(list, i);
+        sprintf(errorString, "Failed to find the correct value for i = %d", i);
+        TEST_ASSERT_EQUAL_INT_MESSAGE(i+1, ((TestStruct*)data)->num, errorString);
+    }
+    destroyLinkedList(list);
+}
+
+/*
+ * Test: test_get_odd
+ * ----------------------------
+ * Test the get function with a list with an odd length.
+ */
+void test_get_odd(void){
+    LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
+    TestStruct * test1 = createTestingStruct(1, 'a');
+    TestStruct * test2 = createTestingStruct(2, 'b');
+    TestStruct * test3 = createTestingStruct(3, 'c');
+    TestStruct * test4 = createTestingStruct(4, 'd');
+    TestStruct * test5 = createTestingStruct(5, 'e');
+    TestStruct * test6 = createTestingStruct(6, 'f');
+    TestStruct * test7 = createTestingStruct(7, 'g');
+    void * data;
+    char errorString[100];
+
+    addToBackLL(list, test1);
+    addToBackLL(list, test2);
+    addToBackLL(list, test3);
+    addToBackLL(list, test4);
+    addToBackLL(list, test5);
+    addToBackLL(list, test6);
+    addToBackLL(list, test7);
+    
+    for(int i = 0; i < 7; i++){
+        data = getLL(list, i);
+        sprintf(errorString, "Failed to find the correct value for i = %d", i);
+        TEST_ASSERT_EQUAL_INT_MESSAGE(i+1, ((TestStruct*)data)->num, errorString);
+    }
+    destroyLinkedList(list);
+}
+
 int main(void) {
 
     UNITY_BEGIN();
@@ -423,6 +537,15 @@ int main(void) {
     RUN_TEST(test_remove_last_index);
     RUN_TEST(test_remove_middle_index);
     RUN_TEST(test_remove_last_entry);
+
+    //get tests
+    RUN_TEST(test_get_null);
+    RUN_TEST(test_get_empty);
+    RUN_TEST(test_get_out_of_lower_bounds);
+    RUN_TEST(test_get_out_of_upper_bounds);
+    RUN_TEST(test_get_even);
+    RUN_TEST(test_get_odd);
+    
 
     return UNITY_END();
 }

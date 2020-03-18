@@ -165,6 +165,36 @@ void * removeFromIndexLL(LinkedList * list, int index){
 }
 
 /*
+ * Function: getLL
+ * ----------------------------
+ * retrieve the item at the given index.
+ * 
+ * list: the linked list to perform the get operation on.
+ * index: the index of the data to be retreive.
+ * 
+ * return: a pointer of the data at the given index.
+ */
+void * getLL(LinkedList * list, int index){
+    if(list == NULL || index < 0 || index > list->length - 1 || list->head == NULL){
+        return NULL;
+    }
+    LinkedListNode * node;
+    if(index > list->length/2){
+        node = list->tail;
+        for(int i = list->length - 1; i > index; i--){
+            node = node->next;
+        }
+    }
+    else{
+        node = list->head;
+        for(int i = 0; i < index; i++){
+            node = node->prev;
+        }
+    }
+    return node->data;
+}
+
+/*
  * Function: destroyLinkedList
  * ----------------------------
  * Frees the linked list and all data stored in the linked list using
