@@ -51,6 +51,7 @@ void test_create_linked_list(void){
     LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
     TEST_ASSERT_NOT_NULL_MESSAGE(list, "createLinkedList returned NULL");
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, list->length, "list length not initiliazed to zero");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, list->sorted, "sorted flag did not initialize to one");
     destroyLinkedList(list);
 }
 
@@ -74,6 +75,8 @@ void test_add_to_front(void){
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, ((TestStruct*)list->head->data)->num, "Item added to wrong side");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, ((TestStruct*)list->tail->data)->num, "Tail item incorrect");
+    TEST_ASSERT_MESSAGE(list->head->prev->data == test1, "Did not set heads prev succesfully");
+    TEST_ASSERT_MESSAGE(list->tail->next->data == test2, "Did not set tails next succesfully");
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, list->length, "incorrect length after second add to front");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, code, "error code received on second call");
 
@@ -113,6 +116,8 @@ void test_add_to_back(void){
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, ((TestStruct*)list->tail->data)->num, "Item added to wrong side");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, ((TestStruct*)list->head->data)->num, "head item incorrect");
+    TEST_ASSERT_MESSAGE(list->head->prev->data == test2, "Did not set heads prev succesfully");
+    TEST_ASSERT_MESSAGE(list->tail->next->data == test1, "Did not set tails next succesfully");
     TEST_ASSERT_EQUAL_INT_MESSAGE(2, list->length, "incorrect length after second add to back");
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, code, "error code received on second call");
     destroyLinkedList(list);
@@ -211,7 +216,7 @@ void test_insert_at_head(void){
     TestStruct * test2 = createTestingStruct(2, 'b');
     LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
 
-    addToFrontLL(list, test1);
+    insertAtIndexLL(list, test1, 0);
     int code = insertAtIndexLL(list, test2, 0);
     TEST_ASSERT_EQUAL_INT_MESSAGE(1, code, "Failure error code returned");
     TEST_ASSERT_MESSAGE((TestStruct*)list->head->data == test2, "head of list is incorrect");
@@ -315,14 +320,17 @@ void test_remove_first_index(void){
     LinkedList * list = createLinkedList(&destroyFunc, &compareFunc);
     TestStruct * test1 = createTestingStruct(1, 'a');
     TestStruct * test2 = createTestingStruct(2, 'b');
+    TestStruct * test3 = createTestingStruct(3, 'b');
     addToFrontLL(list, test1);
     addToBackLL(list, test2);
+    addToBackLL(list, test3);
     void * data = removeFromIndexLL(list, 0);
 
     TEST_ASSERT_MESSAGE(data == test1, "remove from index returned incorrect data");
     TEST_ASSERT_MESSAGE((TestStruct*)list->head->data == test2, "head was not reset correctly");
     TEST_ASSERT_NULL_MESSAGE(list->head->next, "new heads next not set correctly");
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, list->length, "list length not set correctly");
+    TEST_ASSERT_MESSAGE(list->head->prev->data == test3, "new heads prev not set correctly");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(2, list->length, "list length not set correctly");
     free(data);
     destroyLinkedList(list);
 }

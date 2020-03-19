@@ -1,5 +1,7 @@
 #include "linkedList.h"
 
+/**internal functions**/
+
 LinkedListNode * createLinkedListNode(LinkedListNode * next, LinkedListNode * prev, void * data){
     LinkedListNode * node = malloc(sizeof(LinkedListNode));
     node->next = next;
@@ -7,6 +9,95 @@ LinkedListNode * createLinkedListNode(LinkedListNode * next, LinkedListNode * pr
     node->data = data;
     return node;
 }
+
+/*
+ * Function: merge
+ * ----------------------------
+ * merges two sorted list of items into one sorted list of items.
+ * This function is used by the mergeSort function
+ * 
+ * list: The list structure that contains the comparison function that
+ *      should be used for comparison
+ * a: The first sorted list to be merged.
+ * b: The second sorted list to be merged
+ * 
+ * return: a merged sorted list
+ */
+LinkedListNode * merge(LinkedList * list, LinkedListNode * a, LinkedListNode * b){
+    LinkedListNode * node = createLinkedListNode(NULL, NULL, NULL);
+    LinkedListNode * head = node;
+    while(a != NULL || b != NULL){
+        if(b == NULL || (a != NULL && list->compareData(a->data, b->data) < 0)){
+            node->prev = a;
+            a = a->prev;
+        }
+        else{
+            node->prev = b;
+            b = b->prev;
+        }
+        node->prev->next = node;
+        node = node->prev;        
+    }
+    head->prev->next = NULL;
+    list->tail = node;
+    node = head->prev;
+    free(head);
+    return node;
+}
+
+/*
+ * Function: split
+ * ----------------------------
+ * splits a unsorted list into two unsorted list
+ * 
+ * node: the head of the list to be sorted.
+ * 
+ * return: the head of the second list
+ * note: the pointer originally passed into the function acts
+ *      as the first lists head after splitting.
+ */
+LinkedListNode * split(LinkedListNode * node){
+    LinkedListNode * half = node;
+    LinkedListNode * full = node;
+    while(full->prev != NULL && full->prev->prev != NULL){
+        half = half->prev;
+        full = full->prev->prev;
+    }
+    half = half->prev;
+    half->next->prev = NULL;
+    half->next = NULL;
+
+    return half;
+}
+
+/*
+ * Function: mergeSort
+ * ----------------------------
+ * sorts a doubly linked list using the mergesort algorithm
+ * 
+ * list: the linked list data structure to be sorted.
+ * first: the head of an unsorted list that must be sorted.
+ * 
+ * return: the list passed in using first after sorting.
+ */
+void * mergeSort(LinkedList * list, LinkedListNode * first){
+    LinkedListNode * second;
+
+    if(first == NULL || first->prev == NULL){
+        return first;
+    }
+
+    second = split(first);
+
+    first = mergeSort(list, first);
+    second = mergeSort(list, second);
+
+
+    first = merge(list, first, second);
+    return first;
+}
+
+/**end internal functions**/
 
 /*
  * Function: createLinkedList
@@ -26,6 +117,7 @@ LinkedList * createLinkedList(void (*destroyFunc)(void * data), int (*compareFun
     list->head = NULL;
     list->tail = NULL;
     list->length = 0;
+    list->sorted = 1;
     return list;
 }
 
@@ -54,6 +146,9 @@ int addToFrontLL(LinkedList * list, void * data){
         list->tail = node;
     }
     list->length++;
+    if(list->length > 1){
+        list->sorted = 0;
+    }
     return 1;
 }
 
@@ -82,6 +177,9 @@ int addToBackLL(LinkedList * list, void * data){
         list->head = node;
     }
     list->length++;
+    if(list->length > 1){
+        list->sorted = 0;
+    }
     return 1;
 }
 
@@ -120,8 +218,10 @@ int insertAtIndexLL(LinkedList * list, void * data, int index){
     node->prev->next = newNode;
     node->prev = newNode;
     list->length++;
+    if(list->length > 1){
+        list->sorted = 0;
+    }
     return 1;
-
 }
 
 /*
@@ -139,6 +239,7 @@ void * removeFromIndexLL(LinkedList * list, int index){
         return NULL;
     }
     LinkedListNode * node = list->head;
+
     void * data;
     for(int i = 0; i < index; i++){
         node = node->prev;
@@ -149,6 +250,7 @@ void * removeFromIndexLL(LinkedList * list, int index){
     }
     else{
         list->head = node->prev;
+
     }
     if(node->prev != NULL){
         node->prev->next = node->next;
@@ -159,9 +261,10 @@ void * removeFromIndexLL(LinkedList * list, int index){
     data = node->data;
     free(node);
     list->length--;
+    if(list->length < 2){
+        list->sorted = 1;
+    }
     return data;
-    
-
 }
 
 /*
@@ -193,6 +296,89 @@ void * getLL(LinkedList * list, int index){
     }
     return node->data;
 }
+
+/*
+ * Function: searchLL
+ * ----------------------------
+ * Sequentially checks each item.
+ * 
+ * list: the linked list to perform the search operation on.
+ * data: the item to be found.
+ * 
+ * return: the index of the item searched for.  -1 if not found.
+ */
+int searchLL(LinkedList * list, void * data){
+    if(list == NULL){
+        return -1;
+    }
+    int count = 0;
+    LinkedListNode * node = list->head;
+    while(node != NULL){
+        if(list->compareData(data, node->data) == 0){
+            return count; 
+        }
+        node = node->prev;
+        count++;
+    }
+    return -1;
+}
+
+/*
+ * Function: insertSortedLL
+ * ----------------------------
+ * insert an item into a sorted list.
+ * 
+ * list: the linked list to perform the insert operation on.
+ * data: the item to be inserted into the list.
+ * 
+ * return: the index the item was inserted to.  -1 if failed.
+ */
+int insertSortedLL(LinkedList * list, void * data){
+    if(list == NULL || list->sorted == 0){
+        return -1;
+    }
+    LinkedListNode * node = list->head;
+    LinkedListNode * newNode;
+    int index = 0;
+    while(node != NULL){
+        if(list->compareData(node->data, data) > 0){
+            newNode = createLinkedListNode(node->next, node, data);
+            if(node->next == NULL){
+                list->head = newNode;
+            }
+            else{
+                node->next->prev = newNode;
+            }
+            node->next = newNode;
+            list->length++;
+            return index;
+        }
+        index++;
+        node = node->prev;
+    }
+    addToBackLL(list, data);
+    list->sorted = 1;
+    return index;
+}
+
+/*
+ * Function: sortLL
+ * ----------------------------
+ * Sorts the linked list using a merge sort algorithm
+ * 
+ * list: the linked list to perform sort operation on.
+ * 
+ * return: 1 if sucessful. 0 if failed.
+ */
+int sortLL(LinkedList * list){
+    if(list == NULL){
+        return 0;
+    }
+    list->head = mergeSort(list, list->head);
+    list->sorted = 1;
+    return 1;    
+}
+
 
 /*
  * Function: destroyLinkedList

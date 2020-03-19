@@ -10,7 +10,6 @@
  * next: the next item in the linked list
  * prev: the previous item stored in the linked list
  * data: the data stored in the Node
- * 
  */
 typedef struct linkedListNode{
     struct linkedListNode * next;
@@ -29,6 +28,7 @@ typedef struct linkedListNode{
  *      stored in the linked list
  * compareData: a function pointer that is used to compare two items
  *      in the linked list
+ * sorted: 1=sorted 0=unsorted
  * 
  */
 typedef struct linkedList{
@@ -37,6 +37,7 @@ typedef struct linkedList{
     void (*destroyData)(void * data);
     int (*compareData)(void * a, void * b);
     int length;
+    int sorted;
 }LinkedList;
 
 /*
@@ -118,6 +119,41 @@ void * removeFromIndexLL(LinkedList * list, int index);
  * return: a pointer of the data at the given index.
  */
 void * getLL(LinkedList * list, int index);
+
+/*
+ * Function: searchLL
+ * ----------------------------
+ * Sequentially checks each item.
+ * 
+ * list: the linked list to perform the search operation on.
+ * data: the item to be found.
+ * 
+ * return: the index of the item searched for.  -1 if not found.
+ */
+int searchLL(LinkedList * list, void * data);
+
+/*
+ * Function: insertSortedLL
+ * ----------------------------
+ * insert an item into a sorted list.
+ * 
+ * list: the linked list to perform the insert operation on.
+ * data: the item to be inserted into the list.
+ * 
+ * return: the index the item was inserted to.  -1 if failed.
+ */
+int insertSortedLL(LinkedList * list, void * data);
+
+/*
+ * Function: sortLL
+ * ----------------------------
+ * Sorts the linked list using a merge sort algorithm
+ * 
+ * list: the linked list to perform sort operation on.
+ * 
+ * return: 1 if sucessful. 0 if failed.
+ */
+int sortLL(LinkedList * list);
 
 /*
  * Function: destroyLinkedList
